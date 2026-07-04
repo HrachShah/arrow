@@ -993,6 +993,60 @@ class Arrow:
 
         return self.fromdatetime(current)
 
+    @staticmethod
+    def _normalize_and_shift(
+        current_time, time_changes
+    ):
+        # Units that cannot accept a fractional value (the underlying
+        # dateutil.relativedelta raises ValueError for non-int month/year).
+        _INT_UNITS = frozenset({"months", "quarters", "years"})
+
+        # For a fractional value in months/quarters/years, surface a clear
+        # error rather than the dateutil ValueError that callers would see
+        # otherwise. Fractional seconds/minutes/hours/days/weeks are OK and
+        # are converted to the nearest finer unit (e.g. 1.5 hours ->
+        # 90 minutes) so the existing relativedelta code path still gets
+        # integer kwargs.
+        for unit in _INT_UNITS:
+            val = time_changes.get(unit, 0)
+            if val != int(val):
+                raise ValueError(
+                    "Dehumanize does not support fractional "
+                    + unit
+                    + " in input "
+                    + repr(input_string)
+                    + "; use the smaller unit instead."
+                )
+
+        # Normalize fractional values to seconds (and microseconds for
+        # sub-second remainders) so the existing relativedelta code path
+        # still gets integer kwargs. Convert directly to seconds to avoid
+        # precision loss from chained int() rounding (e.g. 0.01 hours
+        # must become 36 seconds, not 0 minutes).
+        _SECONDS_PER = {
+            "seconds": 1,
+            "minutes": 60,
+            "hours": 3600,
+            "days": 86400,
+            "weeks": 604800,
+        }
+        for unit, val in list(time_changes.items()):
+            if val == int(val):
+                time_changes[unit] = int(val)
+                continue
+            total_seconds = val * _SECONDS_PER[unit]
+            time_changes.pop(unit)
+            whole_seconds = int(total_seconds)
+            if whole_seconds == total_seconds:
+                time_changes["seconds"] = whole_seconds
+            else:
+                time_changes["seconds"] = whole_seconds
+                time_changes["microseconds"] = int(
+                    round((total_seconds - whole_seconds) * 1_000_000)
+                )
+
+        return current_time.shift(check_imaginary=True, **time_changes)
+
     def shift(self, check_imaginary: bool = True, **kwargs: Any) -> "Arrow":
         """Returns a new :class:`Arrow <arrow.arrow.Arrow>` object with attributes updated
         according to inputs.
@@ -1381,7 +1435,7 @@ class Arrow:
         # Reject inputs that contain a negative integer literal. Humanized time
         # strings use locale-defined "ago"/"in" markers for direction, so a
         # leading "-N" sign is almost certainly a user error and would
-        # otherwise be silently dropped by the \d+ number matcher.
+        # otherwise be silently dropped by the \d+(?:\.\d+)? number matcher.
         if re.search(r"-\d+", input_string):
             raise ValueError(
                 "Dehumanize does not support negative numeric values; "
@@ -1402,7 +1456,7 @@ class Arrow:
         )
 
         # Create a regex pattern object for numbers
-        num_pattern = re.compile(r"\d+")
+        num_pattern = re.compile(r"\d+(?:\.\d+)?")
 
         # Search input string for each time unit within locale
         for unit, unit_object in locale_obj.timeframes.items():
@@ -1418,7 +1472,7 @@ class Arrow:
             for time_delta, time_string in strings_to_search.items():
                 # Replace {0} with regex \d representing digits
                 search_string = str(time_string)
-                search_string = search_string.format(r"\d+")
+                search_string = search_string.format(r"\d+(?:\.\d+)?")
 
                 # Create search pattern and find within string
                 pattern = re.compile(rf"(^|\b|\d){search_string}")
@@ -1435,10 +1489,10 @@ class Arrow:
                 # Need for absolute value as some locales have signs included in their objects
                 if not num_match:
                     change_value = (
-                        1 if not time_delta.isnumeric() else abs(int(time_delta))
+                        1 if not time_delta.isnumeric() else abs(float(time_delta))
                     )
                 else:
-                    change_value = int(num_match.group())
+                    change_value = float(num_match.group())
 
                 # No time to update if now is the unit
                 if unit == "now":
@@ -1488,7 +1542,9 @@ class Arrow:
 
         time_changes = {k: sign_val * v for k, v in time_object_info.items()}
 
-        return current_time.shift(check_imaginary=True, **time_changes)
+        return self._normalize_and_shift(
+            current_time, time_changes
+        )
 
     # query functions
 

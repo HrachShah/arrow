@@ -3017,6 +3017,50 @@ class TestArrowDehumanize:
                 assert arw.dehumanize(future_string, locale=lang) == future
 
 
+    def test_dehumanize_decimal_fraction_hours(self):
+        # Regression for arrow-py/arrow#1237: dehumanize() did not understand
+        # decimal fractions in unit counts. The previous number regex matched
+        # unsigned digits only, so "2 days 3.5 hours ago" silently dropped
+        # the fractional part of the hours value (the "5" of "3.5" was used
+        # because the \d anchor in the unit pattern matched the digit after
+        # the dot, not before it). The number regex now matches an optional
+        # decimal part, and the values are routed through _normalize_and_shift
+        # so the existing relativedelta code path still gets integer kwargs.
+        arw = arrow.Arrow(2025, 6, 1, 9, 30, 0)
+
+        assert arw.dehumanize("in 1.5 hours") == arw.shift(hours=1.5)
+        assert arw.dehumanize("in 0.5 hours") == arw.shift(hours=0.5)
+        assert arw.dehumanize("in 0.25 hours") == arw.shift(hours=0.25)
+        assert arw.dehumanize("in 0.1 hours") == arw.shift(hours=0.1)
+        assert arw.dehumanize("in 0.05 hours") == arw.shift(hours=0.05)
+        assert arw.dehumanize("in 0.01 hours") == arw.shift(hours=0.01)
+
+    def test_dehumanize_decimal_fraction_mixed(self):
+        # The exact example from arrow-py/arrow#1237: "2 days 3.5 hours ago"
+        # against a fixed reference point. Expected: 2 days + 3 hours 30
+        # minutes in the past, which is 2 days 3 hours 30 minutes earlier.
+        arw = arrow.Arrow(2025, 12, 10, 9, 0, 0)
+        assert arw.dehumanize("2 days 3.5 hours ago") == arrow.Arrow(
+            2025, 12, 8, 5, 30, 0
+        )
+
+    def test_dehumanize_decimal_fraction_days_and_weeks(self):
+        # Days and weeks also accept fractional values via the new path.
+        arw = arrow.Arrow(2025, 6, 1, 0, 0, 0)
+        assert arw.dehumanize("in 1.5 days") == arrow.Arrow(2025, 6, 2, 12, 0, 0)
+        assert arw.dehumanize("in 0.5 weeks") == arrow.Arrow(
+            2025, 6, 4, 12, 0, 0
+        )
+
+    def test_dehumanize_decimal_fraction_seconds(self):
+        # Sub-second remainders (e.g. 0.1 minutes = 6 seconds) flow through
+        # the microseconds path inside _normalize_and_shift.
+        arw = arrow.Arrow(2025, 6, 1, 0, 0, 0)
+        assert arw.dehumanize("in 0.1 minutes") == arrow.Arrow(
+            2025, 6, 1, 0, 0, 6
+        )
+
+
 class TestArrowIsBetween:
     def test_start_before_end(self):
         target = arrow.Arrow.fromdatetime(datetime(2013, 5, 7))
