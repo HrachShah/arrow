@@ -759,11 +759,33 @@ class TestDateTimeParserParse:
             "thstrdjtrsrd676776r65",
             "2002-W66-1T14:17:01",
             "2002-W23-03T14:17:01",
+            "2023-W53-1",
+            "2024-W53-1",
         ]
 
         for fmt in bad_formats:
             with pytest.raises(ParserError):
                 self.parser.parse(fmt, "W")
+
+    def test_parse_weekdate_nonexistent_week_raises_parser_error(self):
+        # ISO 8601 only has a week 53 in years where Jan 1 is a Thursday
+        # or where the year is a leap year that starts on Wednesday.
+        # 2023 and 2024 do not qualify, so W53-1 is invalid; the parser
+        # should raise a ParserError (wrapping the underlying strptime
+        # ValueError) so callers can catch a single typed exception.
+        for bad in ("2023-W53-1", "2024-W53-1"):
+            with pytest.raises(ParserError):
+                self.parser.parse(bad, "W")
+            with pytest.raises(ParserError):
+                self.parser.parse_iso(bad)
+
+        # 2020 and 2026 *do* have a week 53, so the same shape is valid.
+        for good, expected in (
+            ("2020-W53-1", datetime(2020, 12, 28)),
+            ("2026-W53-1", datetime(2026, 12, 28)),
+        ):
+            assert self.parser.parse(good, "W") == expected
+            assert self.parser.parse_iso(good) == expected
 
     def test_parse_normalize_whitespace(self):
         assert self.parser.parse(

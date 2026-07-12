@@ -724,8 +724,13 @@ class DateTimeParser:
 
             date_string = f"{year}-{week}-{_day}"
 
-            #  tokens for ISO 8601 weekdates
-            dt = datetime.strptime(date_string, "%G-%V-%u")
+            # tokens for ISO 8601 weekdates
+            try:
+                dt = datetime.strptime(date_string, "%G-%V-%u")
+            except ValueError as e:
+                raise ParserError(
+                    f"Invalid ISO week date: {year}-W{week:02d}-{_day} ({e})"
+                )
 
             parts["year"] = dt.year
             parts["month"] = dt.month
