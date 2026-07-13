@@ -166,6 +166,30 @@ class TestEnglishLocale:
         assert self.locale.meridian(7, "B") is None
         assert self.locale.meridian(7, "NONSENSE") is None
 
+    def test_day_name_out_of_range(self):
+        with pytest.raises(ValueError, match="day must be between 1 and 7"):
+            self.locale.day_name(0)
+        with pytest.raises(ValueError, match="day must be between 1 and 7"):
+            self.locale.day_name(8)
+
+    def test_day_abbreviation_out_of_range(self):
+        with pytest.raises(ValueError, match="day must be between 1 and 7"):
+            self.locale.day_abbreviation(0)
+        with pytest.raises(ValueError, match="day must be between 1 and 7"):
+            self.locale.day_abbreviation(8)
+
+    def test_month_name_out_of_range(self):
+        with pytest.raises(ValueError, match="month must be between 1 and 12"):
+            self.locale.month_name(0)
+        with pytest.raises(ValueError, match="month must be between 1 and 12"):
+            self.locale.month_name(13)
+
+    def test_month_abbreviation_out_of_range(self):
+        with pytest.raises(ValueError, match="month must be between 1 and 12"):
+            self.locale.month_abbreviation(0)
+        with pytest.raises(ValueError, match="month must be between 1 and 12"):
+            self.locale.month_abbreviation(13)
+
 
 @pytest.mark.usefixtures("lang_locale")
 class TestItalianLocale:

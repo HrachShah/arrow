@@ -185,6 +185,11 @@ class Locale:
 
         """
 
+        if not 1 <= day <= 7:
+            raise ValueError(
+                f"day must be between 1 and 7 (inclusive), got {day!r}."
+            )
+
         return self.day_names[day]
 
     def day_abbreviation(self, day: int) -> str:
@@ -193,6 +198,11 @@ class Locale:
         :param day: the ``int`` day of the week (1-7).
 
         """
+
+        if not 1 <= day <= 7:
+            raise ValueError(
+                f"day must be between 1 and 7 (inclusive), got {day!r}."
+            )
 
         return self.day_abbreviations[day]
 
@@ -203,6 +213,11 @@ class Locale:
 
         """
 
+        if not 1 <= month <= 12:
+            raise ValueError(
+                f"month must be between 1 and 12 (inclusive), got {month!r}."
+            )
+
         return self.month_names[month]
 
     def month_abbreviation(self, month: int) -> str:
@@ -211,6 +226,11 @@ class Locale:
         :param month: the ``int`` month of the year (1-12).
 
         """
+
+        if not 1 <= month <= 12:
+            raise ValueError(
+                f"month must be between 1 and 12 (inclusive), got {month!r}."
+            )
 
         return self.month_abbreviations[month]
 
