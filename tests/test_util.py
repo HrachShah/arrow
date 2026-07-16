@@ -47,6 +47,10 @@ class TestUtil:
 
         assert not util.is_timestamp(True)
         assert not util.is_timestamp(False)
+        assert not util.is_timestamp("nan")
+        assert not util.is_timestamp("inf")
+        assert not util.is_timestamp("-inf")
+        assert not util.is_timestamp("1" * 5000)
 
         class InvalidTimestamp:
             pass
