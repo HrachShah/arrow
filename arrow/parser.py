@@ -843,6 +843,7 @@ class DateTimeParser:
         :rtype: datetime.datetime
         :raises ParserError: If no format matches the input string.
         """
+        formats = tuple(formats)
         _datetime: Optional[datetime] = None
 
         for fmt in formats:

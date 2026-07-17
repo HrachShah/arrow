@@ -43,6 +43,12 @@ class TestDateTimeParser:
         result = self.parser._parse_multiformat("str", ["fmt_a", "fmt_b"])
         assert result == mock_datetime
 
+    def test_parse_multiformat_reports_generator_formats(self):
+        with pytest.raises(parser.ParserError, match="YYYY-MM-DD, YYYY/MM/DD"):
+            self.parser._parse_multiformat(
+                "not a date", (fmt for fmt in ("YYYY-MM-DD", "YYYY/MM/DD"))
+            )
+
     def test_parse_multiformat_all_fail(self, mocker):
         mocker.patch(
             "arrow.parser.DateTimeParser.parse",
