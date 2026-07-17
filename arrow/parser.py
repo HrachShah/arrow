@@ -918,7 +918,18 @@ class TzinfoParser:
                 hours: str
                 minutes: Union[str, int, None]
                 sign, hours, minutes = iso_match.groups()
-                seconds = int(hours) * 3600 + int(minutes or 0) * 60
+                suffix = tzinfo_string[iso_match.end():]
+                if suffix and not suffix.startswith(")"):
+                    raise ParserError(
+                        f"Could not parse timezone expression {tzinfo_string!r}."
+                    )
+                hour_value = int(hours)
+                minute_value = int(minutes or 0)
+                if hour_value >= 24 or minute_value >= 60:
+                    raise ParserError(
+                        f"Timezone offset must be between -23:59 and +23:59, got {tzinfo_string!r}."
+                    )
+                seconds = hour_value * 3600 + minute_value * 60
 
                 if sign == "-":
                     seconds *= -1
