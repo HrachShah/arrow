@@ -920,7 +920,9 @@ class TzinfoParser:
                 minutes: Union[str, int, None]
                 sign, hours, minutes = iso_match.groups()
                 suffix = tzinfo_string[iso_match.end():]
-                if suffix and not suffix.startswith(")"):
+                if suffix and suffix != ")" and not (
+                    suffix.startswith(") ") and suffix[2:].strip()
+                ):
                     raise ParserError(
                         f"Could not parse timezone expression {tzinfo_string!r}."
                     )
