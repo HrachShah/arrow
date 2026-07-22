@@ -23,6 +23,7 @@ from typing import (
     List,
     Literal,
     Mapping,
+    Match,
     Optional,
     Tuple,
     Union,
@@ -1456,15 +1457,33 @@ class Arrow:
             )
 
         # Sign logic
-        future_string = locale_obj.future
-        future_string = future_string.format(".*")
-        future_pattern = re.compile(rf"^{future_string}$")
-        future_pattern_match = future_pattern.findall(input_string)
+        unit_patterns = []
+        for unit_object in locale_obj.timeframes.values():
+            strings_to_search = (
+                unit_object if isinstance(unit_object, Mapping) else {"unit": unit_object}
+            )
+            for time_string in strings_to_search.values():
+                unit_patterns.append(
+                    re.escape(str(time_string)).replace(r"\{0\}", r"\d+")
+                )
 
-        past_string = locale_obj.past
-        past_string = past_string.format(".*")
-        past_pattern = re.compile(rf"^{past_string}$")
-        past_pattern_match = past_pattern.findall(input_string)
+        unit_pattern = "(?:" + "|".join(sorted(unit_patterns, key=len, reverse=True)) + ")"
+        relative_content_pattern = re.compile(
+            rf"^{unit_pattern}(?:(?:\s+|\s+\w+(?:\s+\w+){{0,2}}\s+){unit_pattern})*$"
+        )
+
+        def relative_time_pattern(template: str) -> re.Pattern[str]:
+            escaped_template = re.escape(template).replace(r"\{0\}", r"(?P<relative>.+?)")
+            return re.compile(rf"^{escaped_template}$")
+
+        def matches_relative_time(template: str) -> Optional[Match[str]]:
+            match = relative_time_pattern(template).fullmatch(input_string)
+            if match is None or not relative_content_pattern.fullmatch(match["relative"]):
+                return None
+            return match
+
+        future_pattern_match = matches_relative_time(locale_obj.future)
+        past_pattern_match = matches_relative_time(locale_obj.past)
 
         # If a string contains the now unit, there will be no relative units, hence the need to check if the now unit
         # was visited before raising a ValueError

@@ -2876,6 +2876,12 @@ class TestArrowDehumanize:
             with pytest.raises(TypeError, match="input_string must be str"):
                 arw.dehumanize(bad)
 
+    def test_rejects_extra_text_and_conflicting_directions(self):
+        arw = arrow.Arrow(2024, 1, 1)
+        for value in ("in 5 minutes nonsense", "in 5 minutes ago", "5 minutes ago nonsense"):
+            with pytest.raises(ValueError):
+                arw.dehumanize(value)
+
     # Ensures relative units are required in string
     def test_require_relative_unit(self, locale_list_no_weeks: List[str]):
         for lang in locale_list_no_weeks:
