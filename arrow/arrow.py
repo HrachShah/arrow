@@ -1381,6 +1381,14 @@ class Arrow:
 
         current_time = self.fromdatetime(self._datetime)
 
+        # Reject non-string input before looking up locale-specific patterns.
+        # This keeps the public error stable even when a locale stores timeframes
+        # in a mapping that would otherwise be searched with regex operations.
+        if not isinstance(input_string, str):
+            raise TypeError(
+                f"input_string must be str, not {type(input_string).__name__}."
+            )
+
         # Create an object containing the relative time info
         time_object_info = dict.fromkeys(
             ["seconds", "minutes", "hours", "days", "weeks", "months", "years"], 0
@@ -1394,11 +1402,6 @@ class Arrow:
 
         # Create a regex pattern object for numbers
         num_pattern = re.compile(r"\d+")
-
-        if not isinstance(input_string, str):
-            raise TypeError(
-                f"input_string must be str, not {type(input_string).__name__}."
-            )
 
         # Search input string for each time unit within locale
         for unit, unit_object in locale_obj.timeframes.items():
