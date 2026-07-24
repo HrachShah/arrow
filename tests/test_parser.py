@@ -1158,6 +1158,11 @@ class TestDateTimeParserISO:
 
         assert self.parser.parse_iso(dt.isoformat()) == dt
 
+    def test_parse_iso_rejects_timezone_minute_overflow(self):
+        for value in ["2013-02-03T04:05:06+01:60", "2013-02-03T04:05:06-01:60"]:
+            with pytest.raises(ParserError):
+                self.parser.parse_iso(value)
+
     def test_parse_iso_normalize_whitespace(self):
         assert self.parser.parse_iso(
             "2013-036 \t  04:05:06Z", normalize_whitespace=True

@@ -334,6 +334,18 @@ class DateTimeParser:
             ) = time_components.groups()
 
             has_tz = len(time_parts) == 2
+            if has_tz and time_parts[1]:
+                timezone_match = re.fullmatch(r"(\d{2})(?::?(\d{2}))?", time_parts[1])
+                if timezone_match is None:
+                    raise ParserError(
+                        "Invalid timezone component provided. "
+                        "Please specify a valid ISO 8601 timezone offset."
+                    )
+                timezone_hours, timezone_minutes = timezone_match.groups()
+                if int(timezone_hours) >= 24 or int(timezone_minutes or 0) >= 60:
+                    raise ParserError(
+                        "Timezone offset must be between -23:59 and +23:59."
+                    )
             has_minutes = minutes is not None
             has_seconds = seconds is not None
             has_subseconds = subseconds is not None
