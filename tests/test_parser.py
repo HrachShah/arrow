@@ -1335,6 +1335,11 @@ class TestTzinfoParser:
             "(UTC+01:00) Amsterdam, Berlin, Bern, Rom, Stockholm, Wien"
         ) == timezone(timedelta(seconds=3600))
 
+    def test_parse_rejects_out_of_range_offsets(self):
+        for value in ["+24:00", "-24:00", "+01:60", "-01:60"]:
+            with pytest.raises(ParserError):
+                self.parser.parse(value)
+
     def test_parse_iso(self):
         assert self.parser.parse("01:00") == timezone(timedelta(seconds=3600))
         assert self.parser.parse("11:35") == timezone(
