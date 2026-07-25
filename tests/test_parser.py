@@ -1330,6 +1330,11 @@ class TestTzinfoParser:
             "(UTC+01:00) Amsterdam, Berlin, Bern, Rom, Stockholm, Wien"
         ) == timezone(timedelta(seconds=3600))
 
+    def test_parse_rejects_timezone_minute_overflow(self):
+        for value in ["+01:60", "-01:60", "0160", "-0160"]:
+            with pytest.raises(parser.ParserError):
+                self.parser.parse(value)
+
     def test_parse_iso(self):
         assert self.parser.parse("01:00") == timezone(timedelta(seconds=3600))
         assert self.parser.parse("11:35") == timezone(
@@ -1348,6 +1353,11 @@ class TestTzinfoParser:
 
     def test_parse_str(self):
         assert self.parser.parse("US/Pacific") == ZoneInfo("US/Pacific")
+
+    def test_parse_rejects_out_of_range_offsets(self):
+        for value in ("+24", "-24", "+01:60", "-01:60"):
+            with pytest.raises(parser.ParserError):
+                self.parser.parse(value)
 
     def test_parse_fails(self):
         with pytest.raises(parser.ParserError):

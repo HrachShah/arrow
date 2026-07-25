@@ -918,6 +918,16 @@ class TzinfoParser:
                 hours: str
                 minutes: Union[str, int, None]
                 sign, hours, minutes = iso_match.groups()
+                if minutes is not None and int(minutes) >= 60:
+                    raise ParserError(
+                        "Timezone offset minutes must be between 0 and 59."
+                    )
+
+                if int(hours) >= 24 or int(minutes or 0) >= 60:
+                    raise ParserError(
+                        "Timezone offset must be between -23:59 and +23:59."
+                    )
+
                 seconds = int(hours) * 3600 + int(minutes or 0) * 60
 
                 if sign == "-":
