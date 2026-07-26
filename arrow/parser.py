@@ -923,7 +923,9 @@ class TzinfoParser:
             tzinfo = timezone.utc
 
         else:
-            iso_match = cls._TZINFO_RE.match(tzinfo_string)
+            iso_match = cls._TZINFO_RE.fullmatch(tzinfo_string)
+            if iso_match is None and tzinfo_string.startswith("(UTC"):
+                iso_match = cls._TZINFO_RE.match(tzinfo_string)
 
             if iso_match:
                 sign: Optional[str]

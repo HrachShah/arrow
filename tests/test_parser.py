@@ -1340,6 +1340,11 @@ class TestTzinfoParser:
             with pytest.raises(ParserError):
                 self.parser.parse(value)
 
+    def test_parse_rejects_trailing_timezone_text(self):
+        for value in ["+01:00 garbage", "+01:00)"]:
+            with pytest.raises(ParserError):
+                self.parser.parse(value)
+
     def test_parse_iso(self):
         assert self.parser.parse("01:00") == timezone(timedelta(seconds=3600))
         assert self.parser.parse("11:35") == timezone(
