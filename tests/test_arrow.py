@@ -2606,6 +2606,12 @@ def slavic_locales() -> List[str]:
 
 
 class TestArrowDehumanize:
+    def test_non_string_input_raises_type_error(self):
+        arw = arrow.Arrow.utcnow()
+
+        with pytest.raises(TypeError, match="input_string must be str"):
+            arw.dehumanize(None)
+
     def test_now(self, locale_list_no_weeks: List[str]):
         for lang in locale_list_no_weeks:
             arw = arrow.Arrow(2000, 6, 18, 5, 55, 0)
