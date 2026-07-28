@@ -1163,6 +1163,15 @@ class TestDateTimeParserISO:
             with pytest.raises(ParserError):
                 self.parser.parse_iso(value)
 
+    def test_parse_iso_wraps_invalid_clock_values(self):
+        for value in [
+            "2013-02-03T25:00",
+            "2013-02-03T04:60",
+            "2013-02-03T04:05:60",
+        ]:
+            with pytest.raises(ParserError):
+                self.parser.parse_iso(value)
+
     def test_parse_iso_normalize_whitespace(self):
         assert self.parser.parse_iso(
             "2013-036 \t  04:05:06Z", normalize_whitespace=True

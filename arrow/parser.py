@@ -825,8 +825,8 @@ class DateTimeParser:
 
         increment = timedelta(days=day_increment, seconds=second_increment)
 
-        return (
-            datetime(
+        try:
+            dt = datetime(
                 year=parts.get("year", 1),
                 month=parts.get("month", 1),
                 day=parts.get("day", 1),
@@ -836,8 +836,10 @@ class DateTimeParser:
                 microsecond=microsecond,
                 tzinfo=parts.get("tzinfo"),
             )
-            + increment
-        )
+        except ValueError as exc:
+            raise ParserError(str(exc)) from exc
+
+        return dt + increment
 
     def _parse_multiformat(self, string: str, formats: Iterable[str]) -> datetime:
         """
