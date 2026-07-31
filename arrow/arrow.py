@@ -1367,7 +1367,7 @@ class Arrow:
 
         """
 
-        # Create a locale object based off given local
+        # Create a locale object based off given localee
         locale_obj = locales.get_locale(locale)
 
         # Check to see if locale is supported
