@@ -1557,11 +1557,12 @@ class TestArrowSpanRange:
 
 
 class TestArrowInterval:
-    def test_incorrect_input(self):
-        with pytest.raises(ValueError):
+    @pytest.mark.parametrize("interval", [0, -1, 1.5, True])
+    def test_incorrect_input(self, interval):
+        with pytest.raises(ValueError, match="positive integer"):
             list(
                 arrow.Arrow.interval(
-                    "month", datetime(2013, 1, 2), datetime(2013, 4, 15), 0
+                    "month", datetime(2013, 1, 2), datetime(2013, 4, 15), interval
                 )
             )
 
