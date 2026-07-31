@@ -2838,6 +2838,12 @@ class TestArrowDehumanize:
             assert arw.dehumanize(past_string, locale=lang) == past
             assert arw.dehumanize(future_string, locale=lang) == future
 
+    def test_decimal_unit_quantity_preserves_fraction(self):
+        arw = arrow.Arrow(2000, 6, 18, 5, 55, 0)
+
+        assert arw.dehumanize("in 1.5 hours") == arw.shift(hours=1.5)
+        assert arw.dehumanize("1.5 hours ago") == arw.shift(hours=-1.5)
+
     # Test to make sure unsupported locales error out
     def test_unsupported_locale(self):
         arw = arrow.Arrow(2000, 6, 18, 5, 55, 0)

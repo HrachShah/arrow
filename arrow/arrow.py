@@ -1400,7 +1400,7 @@ class Arrow:
         )
 
         # Create a regex pattern object for numbers
-        num_pattern = re.compile(r"\d+")
+        num_pattern = re.compile(r"\d+(?:\.\d+)?")
 
         # Search input string for each time unit within locale
         for unit, unit_object in locale_obj.timeframes.items():
@@ -1416,7 +1416,7 @@ class Arrow:
             for time_delta, time_string in strings_to_search.items():
                 # Replace {0} with regex \d representing digits
                 search_string = str(time_string)
-                search_string = search_string.format(r"\d+")
+                search_string = search_string.format(r"\d+(?:\.\d+)?")
 
                 # Create search pattern and find within string
                 pattern = re.compile(rf"(^|\b|\d){search_string}")
@@ -1436,7 +1436,7 @@ class Arrow:
                         1 if not time_delta.isnumeric() else abs(int(time_delta))
                     )
                 else:
-                    change_value = int(num_match.group())
+                    change_value = float(num_match.group())
 
                 # No time to update if now is the unit
                 if unit == "now":
