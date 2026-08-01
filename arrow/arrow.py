@@ -1398,6 +1398,7 @@ class Arrow:
             ["now", "seconds", "minutes", "hours", "days", "weeks", "months", "years"],
             False,
         )
+        matched_spans = []
 
         # Create a regex pattern object for numbers
         num_pattern = re.compile(r"\d+(?:\.\d+)?")
@@ -1426,6 +1427,7 @@ class Arrow:
                 if not match:
                     continue
 
+                matched_spans.append(match.span())
                 match_string = match.group()
                 num_match = num_pattern.search(match_string)
 
@@ -1460,13 +1462,15 @@ class Arrow:
 
         # Sign logic
         future_string = locale_obj.future
-        future_string = future_string.format(".*")
-        future_pattern = re.compile(rf"^{future_string}$")
+        future_pattern = re.compile(
+            "^" + re.escape(future_string).replace(r"\{0\}", ".*") + "$"
+        )
         future_pattern_match = future_pattern.findall(input_string)
 
         past_string = locale_obj.past
-        past_string = past_string.format(".*")
-        past_pattern = re.compile(rf"^{past_string}$")
+        past_pattern = re.compile(
+            "^" + re.escape(past_string).replace(r"\{0\}", ".*") + "$"
+        )
         past_pattern_match = past_pattern.findall(input_string)
 
         # If a string contains the now unit, there will be no relative units, hence the need to check if the now unit
@@ -1483,6 +1487,22 @@ class Arrow:
                 "String should either represent a time in the future or a time in the past. "
                 "Ex: 'in 5 seconds' or '5 seconds ago'."
             )
+
+        if sign_val and not unit_visited["now"]:
+            wrapper = locale_obj.future if sign_val > 0 else locale_obj.past
+            prefix, suffix = wrapper.split("{0}")
+            expected_start = len(prefix)
+            expected_end = len(input_string) - len(suffix)
+            if (
+                not input_string.startswith(prefix)
+                or not input_string.endswith(suffix)
+                or not matched_spans
+                or min(start for start, _ in matched_spans) != expected_start
+                or max(end for _, end in matched_spans) != expected_end
+            ):
+                raise ValueError(
+                    "Invalid input String. String contains text outside its relative time information."
+                )
 
         time_changes = {k: sign_val * v for k, v in time_object_info.items()}
 
