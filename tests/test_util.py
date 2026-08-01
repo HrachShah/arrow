@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import pytest
 
@@ -131,3 +131,8 @@ class TestUtil:
 
         with pytest.raises(ValueError):
             util.iso_to_gregorian(2013, 8, 0)
+
+        with pytest.raises(ValueError, match="does not have 53 weeks"):
+            util.iso_to_gregorian(2014, 53, 1)
+
+        assert util.iso_to_gregorian(2015, 53, 1) == date(2015, 12, 28)

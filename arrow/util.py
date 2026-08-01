@@ -95,6 +95,9 @@ def iso_to_gregorian(iso_year: int, iso_week: int, iso_day: int) -> datetime.dat
     if not 1 <= iso_day <= 7:
         raise ValueError("ISO Calendar day value must be between 1-7")
 
+    if iso_week == 53 and datetime.date(iso_year, 12, 28).isocalendar().week != 53:
+        raise ValueError(f"ISO Calendar year {iso_year} does not have 53 weeks.")
+
     # The first week of the year always contains 4 Jan.
     fourth_jan = datetime.date(iso_year, 1, 4)
     delta = datetime.timedelta(fourth_jan.isoweekday() - 1)
