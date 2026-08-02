@@ -58,6 +58,7 @@ class TestUtil:
 
         full_datetime = "2019-06-23T13:12:42"
         assert not util.is_timestamp(full_datetime)
+        assert not util.is_timestamp("1e10000")
 
     def test_validate_ordinal(self):
         timestamp_float = 1607066816.815537

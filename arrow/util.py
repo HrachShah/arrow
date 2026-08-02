@@ -52,7 +52,7 @@ def is_timestamp(value: Any) -> bool:
         return False
     try:
         return math.isfinite(float(value))
-    except ValueError:
+    except (TypeError, ValueError, OverflowError):
         return False
 
 
