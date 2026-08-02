@@ -2,6 +2,7 @@
 
 import datetime
 import math
+import math
 from typing import Any, Optional
 
 from dateutil.rrule import WEEKLY, rrule
@@ -69,6 +70,8 @@ def validate_ordinal(value: Any) -> None:
 
 def normalize_timestamp(timestamp: float) -> float:
     """Normalize millisecond and microsecond timestamps into normal timestamps."""
+    if not math.isfinite(timestamp):
+        raise ValueError(f"The specified timestamp {timestamp!r} is not finite.")
     if timestamp > MAX_TIMESTAMP:
         if timestamp < MAX_TIMESTAMP_MS:
             timestamp /= 1000

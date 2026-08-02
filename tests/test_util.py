@@ -128,6 +128,9 @@ class TestUtil:
         with pytest.raises(ValueError):
             util.normalize_timestamp(3e17)
 
+        with pytest.raises(ValueError, match="not finite"):
+            util.normalize_timestamp(float("-inf"))
+
     def test_iso_gregorian(self):
         with pytest.raises(ValueError):
             util.iso_to_gregorian(2013, 0, 5)
