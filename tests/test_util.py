@@ -44,6 +44,9 @@ class TestUtil:
         assert util.is_timestamp(timestamp_float)
         assert util.is_timestamp(str(timestamp_int))
         assert util.is_timestamp(str(timestamp_float))
+        assert not util.is_timestamp("nan")
+        assert not util.is_timestamp("inf")
+        assert not util.is_timestamp("-inf")
 
         assert not util.is_timestamp(True)
         assert not util.is_timestamp(False)
