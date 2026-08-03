@@ -290,6 +290,10 @@ class TestDateTimeParserParse:
         with pytest.raises(ParserMatchError):
             self.parser.parse(f"{timestamp:f}", "x")
 
+        # the "X" token should reject timestamps that cannot be represented
+        with pytest.raises(ValueError):
+            self.parser.parse("1e10000", "X")
+
     def test_parse_names(self):
         self.expected = datetime(2012, 1, 1)
 

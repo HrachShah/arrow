@@ -725,7 +725,10 @@ class DateTimeParser:
         timestamp = parts.get("timestamp")
 
         if timestamp is not None:
-            return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+            return datetime.fromtimestamp(
+                normalize_timestamp(timestamp),
+                tz=timezone.utc,
+            )
 
         expanded_timestamp = parts.get("expanded_timestamp")
 
