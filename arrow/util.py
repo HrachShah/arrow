@@ -1,6 +1,7 @@
 """Helpful functions used internally within arrow."""
 
 import datetime
+import math
 from typing import Any, Optional
 
 from dateutil.rrule import WEEKLY, rrule
@@ -49,8 +50,7 @@ def is_timestamp(value: Any) -> bool:
     if not isinstance(value, (int, float, str)):
         return False
     try:
-        float(value)
-        return True
+        return math.isfinite(float(value))
     except ValueError:
         return False
 

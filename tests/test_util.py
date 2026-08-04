@@ -48,6 +48,9 @@ class TestUtil:
         assert not util.is_timestamp(True)
         assert not util.is_timestamp(False)
 
+        for value in (float("nan"), float("inf"), float("-inf"), "nan", "inf", "-inf"):
+            assert not util.is_timestamp(value)
+
         class InvalidTimestamp:
             pass
 
