@@ -51,6 +51,8 @@ class TestUtil:
         for value in (float("nan"), float("inf"), float("-inf"), "nan", "inf", "-inf"):
             assert not util.is_timestamp(value)
 
+        assert not util.is_timestamp(10**1000)
+
         class InvalidTimestamp:
             pass
 
