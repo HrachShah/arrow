@@ -1092,6 +1092,11 @@ class TestArrowRange:
                 )
             )
 
+    @pytest.mark.parametrize("limit", [-1, 1.5, "2", True])
+    def test_range_rejects_invalid_limits(self, limit):
+        with pytest.raises((TypeError, ValueError), match="limit must be"):
+            list(arrow.Arrow.range("day", datetime(2020, 1, 1), limit=limit))
+
     def test_range_over_months_ending_on_different_days(self):
         # regression test for issue #842
         result = list(arrow.Arrow.range("month", datetime(2015, 1, 31), limit=4))

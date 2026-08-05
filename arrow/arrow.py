@@ -1882,6 +1882,10 @@ class Arrow:
     @classmethod
     def _get_iteration_params(cls, end: Any, limit: Optional[int]) -> Tuple[Any, int]:
         """Sets default end and limit values for range method."""
+        if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int)):
+            raise TypeError("limit must be a non-negative integer or None")
+        if limit is not None and limit < 0:
+            raise ValueError("limit must be a non-negative integer or None")
         if end is None:
             if limit is None:
                 raise ValueError("One of 'end' or 'limit' is required.")
