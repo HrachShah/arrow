@@ -773,7 +773,7 @@ class Arrow:
             (<Arrow [2013-05-05T14:00:00+00:00]>, <Arrow [2013-05-05T15:59:59.999999+00:00]>)
             (<Arrow [2013-05-05T16:00:00+00:00]>, <Arrow [2013-05-05T17:59:59.999999+00:0]>)
         """
-        if interval < 1:
+        if not isinstance(interval, int) or isinstance(interval, bool) or interval < 1:
             raise ValueError("interval has to be a positive integer")
 
         spanRange = iter(

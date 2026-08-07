@@ -1540,6 +1540,11 @@ class TestArrowSpanRange:
 
         assert result == expected
 
+    @pytest.mark.parametrize("interval", [0, -1, 1.5, True])
+    def test_interval_rejects_invalid_values(self, interval):
+        with pytest.raises(ValueError, match="interval has to be a positive integer"):
+            list(arrow.Arrow.interval("day", datetime(2020, 1, 1), datetime(2020, 1, 2), interval))
+
     def test_small_interval_exact_open_bounds(self):
         result = list(
             arrow.Arrow.span_range(
