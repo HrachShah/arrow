@@ -1853,6 +1853,23 @@ class Arrow:
         Returns a 3 element tuple in the form (frame, plural frame, step), for example ("day", "days", 1)
 
         """
+        if not isinstance(name, str) or not name:
+            supported = ", ".join(
+                [
+                    "year(s)",
+                    "month(s)",
+                    "day(s)",
+                    "hour(s)",
+                    "minute(s)",
+                    "second(s)",
+                    "microsecond(s)",
+                    "week(s)",
+                    "quarter(s)",
+                ]
+            )
+            raise ValueError(
+                f"Range or span over frame {name!r} not supported. Supported frames: {supported}."
+            )
         if name in cls._ATTRS:
             return name, f"{name}s", 1
         elif name[-1] == "s" and name[:-1] in cls._ATTRS:

@@ -1092,6 +1092,11 @@ class TestArrowRange:
                 )
             )
 
+    @pytest.mark.parametrize("frame", [None, "", 1])
+    def test_range_rejects_non_string_frames(self, frame):
+        with pytest.raises(ValueError, match="not supported"):
+            list(arrow.Arrow.range(frame, datetime(2020, 1, 1), limit=1))
+
     @pytest.mark.parametrize("limit", [-1, 1.5, "2", True])
     def test_range_rejects_invalid_limits(self, limit):
         with pytest.raises((TypeError, ValueError), match="limit must be"):
