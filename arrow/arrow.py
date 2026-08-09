@@ -553,6 +553,11 @@ class Arrow:
 
         util.validate_bounds(bounds)
 
+        if not isinstance(count, int) or isinstance(count, bool):
+            raise TypeError("count must be a positive integer")
+        if count < 1:
+            raise ValueError("count must be a positive integer")
+
         frame_absolute, frame_relative, relative_steps = self._get_frames(frame)
 
         if frame_absolute == "week":
