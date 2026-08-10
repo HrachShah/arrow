@@ -1910,6 +1910,11 @@ class TestArrowSpan:
         with pytest.raises(TypeError, match="count must be a positive integer"):
             self.arrow.span("hour", count=count)
 
+    @pytest.mark.parametrize("week_start", [True, 1.5, "2"])
+    def test_span_rejects_non_integer_week_starts(self, week_start):
+        with pytest.raises(TypeError, match="week_start argument must be an integer"):
+            self.arrow.span("week", week_start=week_start)
+
     @pytest.mark.parametrize("count", [0, -1])
     def test_span_rejects_non_positive_counts(self, count):
         with pytest.raises(ValueError, match="count must be a positive integer"):

@@ -561,6 +561,8 @@ class Arrow:
         frame_absolute, frame_relative, relative_steps = self._get_frames(frame)
 
         if frame_absolute == "week":
+            if not isinstance(week_start, int) or isinstance(week_start, bool):
+                raise TypeError("week_start argument must be an integer between 1 and 7.")
             if not 1 <= week_start <= 7:
                 raise ValueError("week_start argument must be between 1 and 7.")
             attr = "day"
