@@ -3112,3 +3112,21 @@ class TestArrowUtil:
 
         with pytest.raises(ValueError):
             arrow.Arrow._get_iteration_params(None, None)
+
+
+def test_interval_rejects_non_integer_interval():
+    with pytest.raises(TypeError, match="interval has to be a positive integer"):
+        list(
+            arrow.Arrow.interval(
+                "hour", datetime(2013, 5, 5, 12), datetime(2013, 5, 5, 13), 1.5
+            )
+        )
+
+
+def test_interval_rejects_boolean_interval():
+    with pytest.raises(TypeError, match="interval has to be a positive integer"):
+        list(
+            arrow.Arrow.interval(
+                "hour", datetime(2013, 5, 5, 12), datetime(2013, 5, 5, 13), True
+            )
+        )
